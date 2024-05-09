@@ -3,7 +3,7 @@ use rllvm::contxt::jit::JitFunction;
 type SumFunc = unsafe extern "C" fn(u64, u64) -> u64;
 
 pub fn main() {
-    let mut func = JitFunction::new(
+    let mut func = JitFunction::<SumFunc>::new(
         vec![
                 0xb8, 0x05, 0x00, 0x00, 0x00,   // mov eax, 5
                 0xc3,                           // ret
