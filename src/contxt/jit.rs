@@ -83,9 +83,7 @@ macro_rules! impl_unsafe_fn {
 
     ($( $param:ident ),*) => {
         impl<Output, $( $param ),*> JitFunction<unsafe extern "C" fn($( $param ),*) -> Output> {
-            /// This method allows you to call the underlying function while making
-            /// sure that the backing storage is not dropped too early and
-            /// preserves the `unsafe` marker for any calls.
+            /// Calls function
             #[allow(non_snake_case)]
             #[inline(always)]
             pub unsafe fn call(&mut self, $( $param: $param ),*) -> Output {

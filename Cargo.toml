@@ -3,7 +3,7 @@ name = "rllvm"
 version = "0.1.0"
 
 author = "Cr0a3"
-description = "LLVM rewriten in Rust"
+description = "LLVM alternativ"
 
 edition = "2021"
 

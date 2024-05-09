@@ -1,3 +1,3 @@
 # RLLVM
 
-LLVM rewritten in Rust
+LLVM alternativ
