@@ -1,6 +1,8 @@
 use crate::func::Function;
 
 pub mod jit;
+pub mod jit_link;
+pub mod exec_engine;
 
 pub struct Context {
     funcs: Vec<Function>

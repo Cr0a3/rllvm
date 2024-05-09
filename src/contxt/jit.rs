@@ -27,12 +27,11 @@ impl<T> JitFunction<T> {
 
     /// use code:
     /// ```
-    /// func.req();
     /// let inner = mem::transmute(
     ///     func.req();
     /// );
     /// ```
-    unsafe fn req(&mut self) -> *mut c_void {
+    pub unsafe fn req(&mut self) -> *mut c_void {
         let mem = alloc_executable_memory(self.code.len());
         if mem.is_null() {
             println!("Error allocating memory");
@@ -44,13 +43,18 @@ impl<T> JitFunction<T> {
         mem
     }
 
-    unsafe fn free(&mut self, mem: *mut c_void) {
+    pub unsafe fn free(&mut self, mem: *mut c_void) {
         dealloc_executable_memory(mem, self.code.len());
+    }
+
+    pub unsafe fn change(&mut self, new: Vec<u8>, mem: *mut c_void) {
+        self.code = new;
+        ptr::copy_nonoverlapping(self.code.as_ptr(), mem as *mut u8, self.code.len());
     }
 }
 
 #[cfg(not(windows))]
-unsafe fn alloc_executable_memory(size: usize) -> *mut c_void {
+pub unsafe fn alloc_executable_memory(size: usize) -> *mut c_void {
     let ptr = libc::mmap(
         ptr::null_mut(),
         size,
@@ -67,17 +71,17 @@ unsafe fn alloc_executable_memory(size: usize) -> *mut c_void {
 }
 
 #[cfg(windows)]
-unsafe fn alloc_executable_memory(size: usize) -> *mut c_void {
+pub unsafe fn alloc_executable_memory(size: usize) -> *mut c_void {
     VirtualAlloc(ptr::null_mut(), size, MEM_COMMIT, PAGE_EXECUTE_READWRITE) as *mut c_void
 }
 
 #[cfg(not(windows))]
-unsafe fn dealloc_executable_memory(ptr: *mut c_void, size: usize) {
+pub unsafe fn dealloc_executable_memory(ptr: *mut c_void, size: usize) {
     libc::munmap(ptr, size);
 }
 
 #[cfg(windows)]
-unsafe fn dealloc_executable_memory(ptr: *mut c_void, _size: usize) {
+pub unsafe fn dealloc_executable_memory(ptr: *mut c_void, _size: usize) {
     VirtualFree(
         ptr as *mut winapi::ctypes::c_void,
         0,

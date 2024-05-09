@@ -2,6 +2,7 @@ use rllvm::contxt::jit::JitFunction;
 
 type SumFunc = unsafe extern "C" fn(u64, u64) -> u64;
 
+#[rustfmt::skip]
 pub fn main() {
     let mut func: JitFunction<SumFunc> = JitFunction::new(
         vec![
