@@ -8,3 +8,6 @@ description = "LLVM rewriten in Rust"
 edition = "2021"
 
 [dependencies]
+libc = "0.2.154"
+target-lexicon = "0.12.14"
+winapi = { version = "0.3.9", features = ["winnt", "memoryapi"] }
