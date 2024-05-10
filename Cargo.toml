@@ -11,3 +11,4 @@ edition = "2021"
 libc = "0.2.154"
 target-lexicon = "0.12.14"
 winapi = { version = "0.3.9", features = ["winnt", "memoryapi"] }
+x86asm = "0.1.0"
