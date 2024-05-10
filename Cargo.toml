@@ -8,7 +8,14 @@ description = "LLVM alternativ"
 edition = "2021"
 
 [dependencies]
-libc = "0.2.154"
+libc = { version = "0.2.154", optional = true }
 target-lexicon = "0.12.14"
-winapi = { version = "0.3.9", features = ["winnt", "memoryapi"] }
-x86asm = "0.1.0"
+winapi = { version = "0.3.9", features = ["winnt", "memoryapi"], optional = true }
+x86asm = { version = "0.1.0", optional = true }
+
+[features]
+default = ["jit", "ir"]
+jit = ["dep:libc", "dep:winapi"]
+context = ["dep:x86asm"]
+function = ["dep:x86asm"]
+ir = ["context", "function", "dep:x86asm"]

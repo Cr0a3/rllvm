@@ -1,5 +1,6 @@
 //! RLLVM
 
+#[cfg(feature = "function")]
 pub mod func;
 pub mod contxt;
 
