@@ -76,13 +76,12 @@ impl JitLinker {
 
     pub unsafe fn engine<T>(&self) -> JitFunction<T> {
 
-        let mut func: JitFunction<T> = JitFunction::new(self.link(0));
-        let mem =  func.req();
+        let func: JitFunction<T> = JitFunction::new(self.link(0));
 
-        let adr = mem.byte_offset(0) as usize;
-
-        let bytes = self.link(adr);
-        func.change(bytes, mem);
+        /*
+        Let's don't change the memory adresses to exact
+        because it will get loaded
+        */
 
         func
     }
