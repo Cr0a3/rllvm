@@ -1,4 +1,5 @@
 use std::mem;
+use std::process::Output;
 use std::ptr;
 
 use libc::c_void;
@@ -11,10 +12,11 @@ use winapi::um::{
     winnt::{MEM_COMMIT, PAGE_EXECUTE_READWRITE},
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct JitFunction<T> {
     pub code: Vec<u8>,
     tmp: Vec<T>,
+    mem: *mut c_void,
 }
 
 impl<T> JitFunction<T> {
@@ -22,6 +24,7 @@ impl<T> JitFunction<T> {
         Self {
             code: code,
             tmp: vec![],
+            mem: 0 as *mut c_void,
         }
     }
 
@@ -31,6 +34,7 @@ impl<T> JitFunction<T> {
     ///     func.req();
     /// );
     /// ```
+    /// Important: You need to free the code at the end
     pub unsafe fn req(&mut self) -> *mut c_void {
         let mem = alloc_executable_memory(self.code.len());
         if mem.is_null() {
@@ -40,16 +44,18 @@ impl<T> JitFunction<T> {
 
         ptr::copy_nonoverlapping(self.code.as_ptr(), mem as *mut u8, self.code.len());
 
+        self.mem = mem;
+
         mem
     }
 
-    pub unsafe fn free(&mut self, mem: *mut c_void) {
-        dealloc_executable_memory(mem, self.code.len());
+    pub unsafe fn free(&mut self) {
+        dealloc_executable_memory(self.mem, self.code.len());
     }
 
-    pub unsafe fn change(&mut self, new: Vec<u8>, mem: *mut c_void) {
+    pub unsafe fn change(&mut self, new: Vec<u8>) {
         self.code = new;
-        ptr::copy_nonoverlapping(self.code.as_ptr(), mem as *mut u8, self.code.len());
+        ptr::copy_nonoverlapping(self.code.as_ptr(), self.mem as *mut u8, self.code.len());
     }
 }
 
@@ -97,15 +103,13 @@ macro_rules! impl_unsafe_fn {
     (@recurse) => {};
 
     ($( $param:ident ),*) => {
-        impl<Output, $( $param ),*> JitFunction<unsafe extern "C" fn($( $param ),*) -> Output> {
+        impl<Output: Clone, $( $param ),*> JitFunction<unsafe extern "C" fn($( $param ),*) -> Output> {
             /// Calls function
             #[allow(non_snake_case)]
             #[inline(always)]
             pub unsafe fn call(&mut self, $( $param: $param ),*) -> Output {
-                let mem = self.req();
-                let inner: unsafe extern "C" fn($( $param ),*) -> Output = mem::transmute(mem);
+                let inner: unsafe extern "C" fn($( $param ),*) -> Output = mem::transmute(self.req());
                 let out = (inner)($( $param ),*);
-                self.free(mem);
 
                 out
             }

@@ -1,1 +1,5 @@
 /target
+/.vscode
+/*.o
+/*.exe
+/*.py

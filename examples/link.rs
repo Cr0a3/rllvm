@@ -20,5 +20,6 @@ fn main() {
     unsafe {
         let out = func.call();
         println!("{}", out);
+        func.free();
     }
 }
