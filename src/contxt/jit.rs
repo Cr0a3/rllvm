@@ -1,5 +1,4 @@
 use std::mem;
-use std::process::Output;
 use std::ptr;
 
 use libc::c_void;
@@ -103,15 +102,16 @@ macro_rules! impl_unsafe_fn {
     (@recurse) => {};
 
     ($( $param:ident ),*) => {
-        impl<Output: Clone, $( $param ),*> JitFunction<unsafe extern "C" fn($( $param ),*) -> Output> {
+        impl<Output: Copy, $( $param ),*> JitFunction<unsafe extern "C" fn($( $param ),*) -> Output > {
             /// Calls function
             #[allow(non_snake_case)]
             #[inline(always)]
             pub unsafe fn call(&mut self, $( $param: $param ),*) -> Output {
                 let inner: unsafe extern "C" fn($( $param ),*) -> Output = mem::transmute(self.req());
                 let out = (inner)($( $param ),*);
-
-                out
+                let out = Box::new(out);
+                let void_ptr: *const Output = &*out;
+                *void_ptr
             }
         }
 
