@@ -23,17 +23,17 @@ impl AsmFunction {
     }
 
     /// Returns the name of the function
-    pub fn name(&self) -> &str {
+    pub fn name(&mut self) -> &str {
         &self.name
     }
 
     /// Compiles the function
     pub fn compile(&mut self) -> Vec<u8> {
-        self.asm.assemble(0).unwrap()
+        self.gen_current().unwrap();
+        self.gen.clone()
     }
 
-    pub fn reloc_at_current_pos(&mut self, to: &str, rel: isize, size: usize) -> Result<(), Box<dyn Error>> {
-
+    fn gen_current(&mut self) -> Result<(), Box<dyn Error>>{
         let gen = self.asm.assemble(0)?;
 
         for byte in gen {
@@ -41,6 +41,12 @@ impl AsmFunction {
         }
 
         self.asm.reset();
+
+        Ok(())
+    }
+
+    pub fn reloc_at_current_pos(&mut self, to: &str, rel: isize, size: usize) -> Result<(), Box<dyn Error>> {
+        self.gen_current()?;
 
         let pos = self.gen.len();
 

@@ -30,9 +30,11 @@ impl Context {
             let func = func.asm_func();
             let compiled = func.compile();
 
-            let entry = &func.name == name;
+            let func_name = func.name();
 
-            linker.add_func(&func.name, compiled, entry);
+            let entry = func_name == name;
+
+            linker.add_func(&func_name, compiled.to_vec(), entry);
 
             for reloc in func.relocs() {
                 linker.add_reloc(reloc);
