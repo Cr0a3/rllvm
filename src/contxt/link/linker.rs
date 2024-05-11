@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::jit::JitFunction;
+use crate::contxt::jit::JitFunction;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Link {

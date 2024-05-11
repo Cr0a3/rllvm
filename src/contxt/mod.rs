@@ -3,7 +3,7 @@
 #[cfg(feature = "jit")]
 pub mod jit;
 #[cfg(feature = "jit")]
-pub mod jit_link;
+pub mod link;
 #[cfg(feature = "jit")]
 pub mod exec_engine;
 

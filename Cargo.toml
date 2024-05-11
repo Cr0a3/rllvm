@@ -10,7 +10,7 @@ edition = "2021"
 [dependencies]
 libc = { version = "0.2.154", optional = true }
 target-lexicon = "0.12.14"
-winapi = { version = "0.3.9", features = ["winnt", "memoryapi"], optional = true }
+winapi = { version = "0.3.9", features = ["winnt", "memoryapi", "libloaderapi"], optional = true }
 x86asm = { version = "0.1.0", optional = true }
 
 [features]
