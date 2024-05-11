@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use iced_x86::code_asm::*;
 use crate::contxt::link::Link;
 
@@ -5,6 +7,8 @@ use crate::contxt::link::Link;
 pub struct AsmFunction {
     pub name: String,
     pub asm: CodeAssembler,
+    gen: Vec<u8>,
+    pub relocs: Vec<(Link, usize)>,
 }
 
 impl AsmFunction {
@@ -13,6 +17,8 @@ impl AsmFunction {
         Self {
             name: name.to_string(),
             asm: CodeAssembler::new(64).unwrap(), // unwrap because i i made it just so it can't give error
+            relocs: vec![],
+            gen: vec![],
         }
     }
 
@@ -26,9 +32,34 @@ impl AsmFunction {
         self.asm.assemble(0).unwrap()
     }
 
+    pub fn reloc_at_current_pos(&mut self, to: &str, rel: isize, size: usize) -> Result<(), Box<dyn Error>> {
+
+        let gen = self.asm.assemble(0)?;
+
+        for byte in gen {
+            self.gen.push( byte );
+        }
+
+        self.asm.reset();
+
+        let pos = self.gen.len();
+
+        let link = Link { from: self.name.clone(), to: to.to_string(), at: (pos as isize + rel) as usize, size: size };
+
+        self.relocs.push((link, pos));
+
+        Ok(())
+    }
+
     /// Returns the relocs of the function
     pub fn relocs(&self) -> Vec<Link> {
-        vec![]
+        let mut ret = vec![];
+
+        for reloc in &self.relocs {
+            ret.push(reloc.0.clone())
+        }
+
+        ret
     }
 
     /// Returns the data this function works with

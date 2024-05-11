@@ -8,8 +8,22 @@ fn main() -> Result<(), Box<dyn Error>>{
     let func = contxt.add_function("main");
 
     let asm = func.asm_func();
-    asm.asm.mov(eax, 5)?;
+
+    asm.asm.mov(ecx, 5)?;
+    asm.asm.mov(edx, 5)?;
+    asm.asm.call(0)?;
+    asm.reloc_at_current_pos("add", -4, 4)?;
+
     asm.asm.ret()?;
+
+    
+    let add = contxt.add_function("add");
+
+    let add = add.asm_func();
+
+    add.asm.add(ecx, edx)?;
+    add.asm.mov(eax, ecx)?;
+    add.asm.ret()?;
 
     unsafe {
         let mut func: JitFunction<unsafe extern "C" fn() -> u32> = contxt.get_jit_function("main")?;
@@ -17,7 +31,7 @@ fn main() -> Result<(), Box<dyn Error>>{
 
         println!("main() -> {}", out);
 
-        assert_eq!(out, 5);
+        assert_eq!(out, 10);
     }
 
     Ok(())
