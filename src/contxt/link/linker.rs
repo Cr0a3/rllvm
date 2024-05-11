@@ -117,8 +117,6 @@ impl JitLinker {
             funcs_p.insert(func.0, (&code, offset));
         }
 
-        println!("{:?}", funcs_p);
-
         ret.push(0xC3); // ret so code | labels are split
 
         for label in &self.labels {
