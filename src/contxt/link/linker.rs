@@ -70,6 +70,11 @@ impl JitLinker {
         self.labels.insert(name.to_string(), data);
     }
 
+    /// Adds an relocation
+    pub fn add_reloc(&mut self, link: Link) {
+        self.relocs.push(link);
+    }
+
     /// Links the code into a `Vec<u8>`
     pub fn link(&mut self, base: usize) -> Vec<u8> {
         let mut ret: Vec<u8> = vec![];
