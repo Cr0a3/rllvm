@@ -7,6 +7,13 @@ pub struct Context {
 }
 
 impl Context {
+    /// Creates new context
+    pub fn new() -> Self {
+        Self { 
+            funcs: vec![],
+        }
+    }
+
     /// Adds a function to the context
     pub fn add_function(&mut self, name: &str) -> &mut Function {
         let func = Function::new(name);
@@ -16,10 +23,12 @@ impl Context {
     }
 
     /// Requests jit function
-    pub unsafe fn get_jit_function<T>(&self, name: &str) -> Result<JitFunction<T>, Box<dyn std::error::Error>> {
+    pub unsafe fn get_jit_function<T>(&mut self, name: &str) -> Result<JitFunction<T>, Box<dyn std::error::Error>> {
         let mut linker = JitLinker::new();
 
-        for func in &self.funcs {
+        for func in self.funcs.iter_mut() {
+            let func = func.asm_func();
+
             let entry = func.name() == name;
 
             linker.add_func(func.name(), func.compile(), entry);

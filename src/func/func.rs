@@ -1,8 +1,9 @@
-use crate::contxt::link::Link;
+use super::AsmFunction;
 
 /// Stores ir for function
 pub struct Function {
     name: String,
+    asm: AsmFunction,
 }
 
 impl Function {
@@ -10,6 +11,7 @@ impl Function {
     pub fn new(name: &str) -> Self {
         Self {
             name: name.to_string(),
+            asm: AsmFunction::new(name),
         }
     }
 
@@ -18,18 +20,8 @@ impl Function {
         &self.name
     }
 
-    /// Compiles the function
-    pub fn compile(&self) -> Vec<u8> {
-        vec![]
-    }
-
-    /// Returns the relocs of the function
-    pub fn relocs(&self) -> Vec<Link> {
-        vec![]
-    }
-
-    /// Returns the data this function works with
-    pub fn data(&self) -> Vec<(&str, Vec<u8>)> {
-        vec![]
+    /// Returns the function as a compilable version
+    pub fn asm_func(&mut self) -> &mut AsmFunction {
+        &mut self.asm
     }
 }
