@@ -13,6 +13,5 @@ pub fn main() {
     unsafe {
         let out = func.call(1, 1);
         println!("{}", out);
-        func.free();
     }
 }

@@ -111,6 +111,7 @@ macro_rules! impl_unsafe_fn {
                 let out = (inner)($( $param ),*);
                 let out = Box::new(out);
                 let void_ptr: *const Output = &*out;
+                self.free();
                 *void_ptr
             }
         }

@@ -1,5 +1,6 @@
 use rllvm::contxt::{jit::JitFunction, jit_link::{JitLinker, Link}};
 
+#[rustfmt::skip]
 fn main() {
     let mut linker = JitLinker::new();
 
@@ -20,6 +21,5 @@ fn main() {
     unsafe {
         let out = func.call();
         println!("{}", out);
-        func.free();
     }
 }
