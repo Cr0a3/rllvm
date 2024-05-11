@@ -2,9 +2,10 @@ use std::error::Error;
 
 use iced_x86::code_asm::*;
 use rllvm::contxt::{contxt::Context, jit::JitFunction};
+use target_lexicon::Triple;
 
 fn main() -> Result<(), Box<dyn Error>>{
-    let mut contxt = Context::new();
+    let mut contxt = Context::new( Triple::host() )?;
     let func = contxt.add_function("main");
 
     let asm = func.asm_func();
