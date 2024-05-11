@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::contxt::jit::JitFunction;
 
+/// Links - Link from one symbol to another
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Link {
     pub from: String,
@@ -10,15 +11,46 @@ pub struct Link {
     pub size: usize,
 }
 
+/// ### JitLinker - A runtime linker for JIT functions
+/// 
+/// The jit linker links multiple functions and datas to one page aligned JitFunction
+/// 
+/// Example usage:
+/// ```
+/// use rllvm::contxt::{jit::JitFunction, link::{JitLinker, Link}};
+/// fn main() {
+///     let mut linker = JitLinker::new();
+/// 
+///     linker.add_func("main", vec![
+///         0xe8, 0x00, 0x00, 0x00, 0x00,   // call test
+///         0xc3,                           // ret
+///     ], true);
+/// 
+///     linker.add_func("test", vec![
+///         0xb8, 0x05, 0x00, 0x00, 0x00,   // eax = 5
+///         0xc3,                           // ret
+///     ], false);
+/// 
+///     linker.relocs.push( Link { from: "main".into(), to: "test".into(), at: 1, size: 4});
+/// 
+///     let mut func: JitFunction<unsafe extern "C" fn() -> u32> = unsafe { linker.engine() };
+/// 
+///     unsafe {
+///         let out = func.call();
+///         println!("{}", out);
+///     }
+/// }
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct JitLinker {
-    pub funcs: HashMap<String, (Vec<u8>, bool)>,
-    pub labels: HashMap<String, Vec<u8>>,
+    funcs: HashMap<String, (Vec<u8>, bool)>,
+    labels: HashMap<String, Vec<u8>>,
     
     pub relocs: Vec<Link>,
 }
 
 impl JitLinker {
+    /// Creates a new linker
     pub fn new() -> Self {
         Self {
             funcs: HashMap::new(),
@@ -28,14 +60,17 @@ impl JitLinker {
         }
     }
 
+    /// Adds a function
     pub fn add_func(&mut self, name: &str, code: Vec<u8>, entry: bool) {
         self.funcs.insert(name.to_string(), (code, entry));
     }
 
+    /// Adds a label
     pub fn add_label(&mut self, name: &str, data: Vec<u8>) {
         self.labels.insert(name.to_string(), data);
     }
 
+    /// Links the code into a `Vec<u8>`
     pub fn link(&mut self, base: usize) -> Vec<u8> {
         let mut ret: Vec<u8> = vec![];
         let mut ret_hash: HashMap<&String, Vec<u8>> = HashMap::new();
@@ -107,14 +142,9 @@ impl JitLinker {
         ret
     }
 
+    /// Links the code and puts it into a page aligned `JitFunction`
     pub unsafe fn engine<T>(&mut self) -> JitFunction<T> {
-
         let func: JitFunction<T> = JitFunction::new(self.link(0));
-
-        /*
-        Let's don't change the memory adresses to exact
-        because it will get loaded
-        */
 
         func
     }

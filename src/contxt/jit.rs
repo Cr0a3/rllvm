@@ -11,6 +11,7 @@ use winapi::um::{
     winnt::{MEM_COMMIT, PAGE_EXECUTE_READWRITE},
 };
 
+/// Stores a jit function which you can execute
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct JitFunction<T> {
     pub code: Vec<u8>,
@@ -19,6 +20,7 @@ pub struct JitFunction<T> {
 }
 
 impl<T> JitFunction<T> {
+    /// Creates new JitFunction
     pub fn new(code: Vec<u8>) -> Self {
         Self {
             code: code,
@@ -27,13 +29,7 @@ impl<T> JitFunction<T> {
         }
     }
 
-    /// use code:
-    /// ```
-    /// let inner = mem::transmute(
-    ///     func.req();
-    /// );
-    /// ```
-    /// Important: You need to free the code at the end
+    /// Allocates the needed memory for the function
     pub unsafe fn req(&mut self) -> *mut c_void {
         let mem = alloc_executable_memory(self.code.len());
         if mem.is_null() {
@@ -48,10 +44,12 @@ impl<T> JitFunction<T> {
         mem
     }
 
+    /// Frees the allocated function memory
     pub unsafe fn free(&mut self) {
         dealloc_executable_memory(self.mem, self.code.len());
     }
 
+    //// Changes the machine code of the function
     pub unsafe fn change(&mut self, new: Vec<u8>) {
         self.code = new;
         ptr::copy_nonoverlapping(self.code.as_ptr(), self.mem as *mut u8, self.code.len());
@@ -103,7 +101,8 @@ macro_rules! impl_unsafe_fn {
 
     ($( $param:ident ),*) => {
         impl<Output: Copy, $( $param ),*> JitFunction<unsafe extern "C" fn($( $param ),*) -> Output > {
-            /// Calls function
+            /// Calls the jit function with the given arguments
+            /// ! Automaticly requests and frees the memory + does some `stack -> heap -> stack` magic
             #[allow(non_snake_case)]
             #[inline(always)]
             pub unsafe fn call(&mut self, $( $param: $param ),*) -> Output {

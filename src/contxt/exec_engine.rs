@@ -1,3 +1,4 @@
+/// Executur for the inner function
 pub struct ExecEngine<T> {
     pub inner: T,
 }
@@ -11,7 +12,7 @@ macro_rules! impl_unsafe_fn {
 
     ($( $param:ident ),*) => {
         impl<Output, $( $param ),*> ExecEngine<unsafe extern "C" fn($( $param ),*) -> Output> {
-            /// Calls function
+            /// Calls the function
             #[allow(non_snake_case)]
             #[inline(always)]
             pub unsafe fn call(&self, $( $param: $param ),*) -> Output {
