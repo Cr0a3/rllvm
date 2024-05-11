@@ -1,7 +1,7 @@
 use rllvm::contxt::jit::JitFunction;
 
-#[rustfmt::skip]
-pub fn main() {
+#[test]
+pub fn jit_function() {
     let mut func: JitFunction<unsafe extern "C" fn() -> u32> = JitFunction::new(
         vec![
                 0xb8, 0x05, 0x00, 0x00, 0x00,   // mov eax, 5
@@ -10,6 +10,6 @@ pub fn main() {
     );
     unsafe {
         let out = func.call();
-        println!("{}", out);
+        assert_eq!(out, 5)
     }
 }
