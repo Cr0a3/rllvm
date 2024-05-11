@@ -28,10 +28,11 @@ impl Context {
 
         for func in self.funcs.iter_mut() {
             let func = func.asm_func();
+            let compiled = func.compile();
 
-            let entry = func.name() == name;
+            let entry = &func.name == name;
 
-            linker.add_func(func.name(), func.compile(), entry);
+            linker.add_func(&func.name, compiled, entry);
 
             for reloc in func.relocs() {
                 linker.add_reloc(reloc);

@@ -1,11 +1,10 @@
-use std::io::Cursor;
-use x86asm::{Instruction, InstructionWriter, Mode};
+use iced_x86::code_asm::*;
 use crate::contxt::link::Link;
 
 /// Stores ir for function which can be compiled
 pub struct AsmFunction {
-    name: String,
-    pub x86_asm_ir: Vec<Instruction>,
+    pub name: String,
+    pub asm: CodeAssembler,
 }
 
 impl AsmFunction {
@@ -13,7 +12,7 @@ impl AsmFunction {
     pub fn new(name: &str) -> Self {
         Self {
             name: name.to_string(),
-            x86_asm_ir: vec![],
+            asm: CodeAssembler::new(64).unwrap(), // unwrap because i i made it just so it can't give error
         }
     }
 
@@ -23,20 +22,8 @@ impl AsmFunction {
     }
 
     /// Compiles the function
-    pub fn compile(&self) -> Vec<u8> {
-        let mut writer = InstructionWriter::new(Cursor::new(vec![]), Mode::Protected);
-
-        let mut gen: Vec<u8> = vec![];
-
-        for instr in self.x86_asm_ir.iter() {
-            writer.write(instr).unwrap();
-        }
-
-        for byte in writer.get_inner_writer_ref().get_ref() {
-            gen.push(*byte)
-        }
-
-        gen
+    pub fn compile(&mut self) -> Vec<u8> {
+        self.asm.assemble(0).unwrap()
     }
 
     /// Returns the relocs of the function
