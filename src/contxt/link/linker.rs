@@ -12,18 +12,28 @@ pub struct Link {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct JitLinker {
-    pub labels: HashMap<String, Vec<u8>>,
     pub funcs: HashMap<String, (Vec<u8>, bool)>,
+    pub labels: HashMap<String, Vec<u8>>,
+    
     pub relocs: Vec<Link>,
 }
 
 impl JitLinker {
     pub fn new() -> Self {
         Self {
-            labels: HashMap::new(),
             funcs: HashMap::new(),
+            labels: HashMap::new(),
+
             relocs: vec![],
         }
+    }
+
+    pub fn add_func(&mut self, name: &str, code: Vec<u8>, entry: bool) {
+        self.funcs.insert(name.to_string(), (code, entry));
+    }
+
+    pub fn add_label(&mut self, name: &str, data: Vec<u8>) {
+        self.labels.insert(name.to_string(), data);
     }
 
     pub fn link(&mut self, base: usize) -> Vec<u8> {
