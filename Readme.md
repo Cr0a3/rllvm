@@ -19,9 +19,9 @@ Here is a bit of ToDo for my libary
 - [x] JitLinker
 
 ## v0.1.2
- - [ ] Starting high level ir struct
-    - [ ] Use traits `impl Compiler for Ir::Add<Var, Int>` so i can overload the enum variants
-    - [ ] Make it compilable
+ - [x] Starting high level ir struct
+    - [x] Use traits `impl Compiler for Ir::Add<Var, Int>` so i can overload the enum variants
+    - [x] Make it compilable
     - [ ] Implement `mov`, `add`, `sub`, `mul`, `div` | `ints`, `floats`
   - [ ] Starting high level ir builder
 
