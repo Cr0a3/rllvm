@@ -64,7 +64,7 @@ impl Compile for Return<i64> {
         Ok(())
     }
 }
-
+/*
 impl Compile for Return<f32> {
     fn compile(&self, asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
         asm.asm.movss(asm.call.retf(), dword_ptr(rip + 0))?;
@@ -89,4 +89,4 @@ impl Compile for Return<f64> {
         
         Ok(())
     }
-}
+}*/

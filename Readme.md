@@ -9,15 +9,7 @@
 LLVM alternativ
 
 # ToDo
-Here is a bit of ToDo for my libary
-## v0.1.1
-- [x] JitFunction
-- [x] JitLinker
-- [x] AsmFunction
-  - [x] Add possibility to use Relocs
-  - [x] Add possibility to use Data
-- [x] JitLinker
-
+Here is a bit of ToDo for my libary:
 ## v0.1.2
  - [x] Starting high level ir struct
     - [x] Use traits `impl Compiler for Ir::Add<Var, Int>` so i can overload the enum variants
@@ -25,6 +17,9 @@ Here is a bit of ToDo for my libary
     - [ ] Implement `mov`, `add`, `sub`, `mul`, `div` | `ints`, `floats`
   - [ ] Starting high level ir builder
 
-# v0.1.3
+##  v0.1.3
  - [ ] Implement `args` to the high level ir
  - [x] Add option (in `context`) to compile to object file
+ - [ ] Naming convention
+    - [x] generate
+    - [ ] parse
