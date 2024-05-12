@@ -6,12 +6,16 @@ use target_lexicon::Triple;
 
 fn main() -> Result<(), Box<dyn Error>>{
     let mut contxt = Context::new( Triple::host() )?;
+    let call = contxt.call.clone();
     let func = contxt.add_function("main");
 
     let asm = func.asm_func();
 
-    asm.asm.mov(ecx, 5)?;
-    asm.asm.mov(edx, 5)?;
+    let arg1 = call.arg32(0).unwrap();
+    let arg2 = call.arg32(1).unwrap();
+
+    asm.asm.mov(arg1, 5)?;
+    asm.asm.mov(arg2, 5)?;
     asm.asm.call(0)?;
     asm.reloc_at_current_pos("add", -4, 4)?;
 
@@ -22,8 +26,8 @@ fn main() -> Result<(), Box<dyn Error>>{
 
     let add = add.asm_func();
 
-    add.asm.add(ecx, edx)?;
-    add.asm.mov(eax, ecx)?;
+    add.asm.add(arg1, arg2)?;
+    add.asm.mov(eax, arg1)?;
     add.asm.ret()?;
 
     unsafe {
