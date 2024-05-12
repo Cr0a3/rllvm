@@ -4,7 +4,7 @@ use std::ptr;
 use libc::c_void;
 
 #[cfg(not(windows))]
-use libc::{c_int, MAP_ANON, MAP_FAILED, MAP_PRIVATE, PROT_EXEC, PROT_WRITE};
+use libc::{MAP_ANON, MAP_FAILED, MAP_PRIVATE, PROT_EXEC, PROT_WRITE};
 #[cfg(windows)]
 use winapi::um::{
     memoryapi::{VirtualAlloc, VirtualFree},

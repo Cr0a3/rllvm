@@ -13,12 +13,10 @@ impl SharedLibary {
         )
     }
 
-    pub unsafe fn get_func_pointer<T>(&self, name: &str) -> Result<unsafe extern "system" fn() -> isize, Box<dyn std::error::Error>> {
+    pub unsafe fn get_func_pointer<T: Copy>(&self, name: &str) -> Result<T, Box<dyn std::error::Error>> {
         let func: Symbol<*const T> = self.libary.get(name.as_bytes().into())?;
-        let raw = func.into_raw();
-        let raw = raw.into_raw();
-        let raw = raw.unwrap();
+        let casted: *const T = func.cast();
 
-        Ok(raw)
+        Ok(*casted)
     }
 }
