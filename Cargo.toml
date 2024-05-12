@@ -1,6 +1,6 @@
 [package]
 name = "rllvm"
-version = "0.1.0"
+version = "0.1.1"
 
 author = "Cr0a3"
 description = "LLVM alternativ"
