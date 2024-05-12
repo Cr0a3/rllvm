@@ -20,7 +20,7 @@ Here is a bit of ToDo for my libary
 
 ## v0.1.2
  - [x] Starting high level ir struct
-    - [ x Use traits `impl Compiler for Ir::Add<Var, Int>` so i can overload the enum variants
+    - [x] Use traits `impl Compiler for Ir::Add<Var, Int>` so i can overload the enum variants
     - [x] Make it compilable
     - [ ] Implement `mov`, `add`, `sub`, `mul`, `div` | `ints`, `floats`
   - [ ] Starting high level ir builder
