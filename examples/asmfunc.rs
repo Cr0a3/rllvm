@@ -9,7 +9,7 @@ fn main() -> Result<(), Box<dyn Error>>{
     let call = contxt.call.clone();
     let func = contxt.add_function("main");
 
-    let asm = func.asm_func();
+    let asm = func.asm_func()?;
 
     let arg1 = call.arg32(0).unwrap();
     let arg2 = call.arg32(1).unwrap();
@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn Error>>{
     
     let add = contxt.add_function("add");
 
-    let add = add.asm_func();
+    let add = add.asm_func()?;
 
     add.asm.add(arg1, arg2)?;
     add.asm.mov(eax, arg1)?;

@@ -2,6 +2,8 @@ use iced_x86::code_asm::*;
 
 use crate::func::AsmFunction;
 
+use self::ir::*;
+
 use super::{*};
 
 pub trait Compile {
@@ -14,19 +16,49 @@ pub trait Compile {
     }
 }
 
-macro_rules! IrTypeImpl {
-    ( <$( $types:ident ),*>, $name:tt, $asm_name:tt => $def:expr) => {
-        impl<$( $types ),*> Compile for $name<$( $types ),*> {
-            fn compile(&self, $asm_name: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
-                $def
-
-                Ok(())
-            }
-        }
-    };
+impl Compile for Add<AsmRegister8, i32> {
+    fn compile(&self, asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
+        asm.asm.add(self.inner1, self.inner2)?;
+        
+        Ok(())
+    }
 }
 
+impl Compile for Add<AsmRegister16, i32> {
+    fn compile(&self, asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
+        asm.asm.add(self.inner1, self.inner2)?;
+        Ok(())
+    }
+}
 
-IrTypeImpl!(<T, U>, Add, asm => {
-    asm.asm.mov(eax, 5)?;
-});
+impl Compile for Add<AsmRegister32, i32> {
+    fn compile(&self, asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
+        asm.asm.add(self.inner1, self.inner2)?;
+        
+        Ok(())
+    }
+}
+
+impl Compile for Add<AsmRegister64, i32> {
+    fn compile(&self, asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {        
+        asm.asm.add(self.inner1, self.inner2)?;
+        
+        Ok(())
+    }
+}
+
+impl Compile for Return<i32> {
+    fn compile(&self, asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
+        asm.asm.mov(asm.call.ret32(), self.inner1)?;
+        
+        Ok(())
+    }
+}
+
+impl Compile for Return<i64> {
+    fn compile(&self, asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
+        asm.asm.mov(asm.call.ret64(), self.inner1)?;
+        
+        Ok(())
+    }
+}

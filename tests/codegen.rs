@@ -9,7 +9,7 @@ fn asm_function_jit() -> Result<(), Box<dyn Error>>{
     
     let add = contxt.add_function("add");
 
-    let add = add.asm_func();
+    let add = add.asm_func()?;
     
     let arg1 = call.arg32(0).unwrap();
     let arg2 = call.arg32(1).unwrap();

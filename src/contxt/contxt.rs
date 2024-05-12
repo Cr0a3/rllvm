@@ -58,7 +58,7 @@ impl Context {
 
     /// Adds a function to the context
     pub fn add_function(&mut self, name: &str) -> &mut Function {
-        let func = Function::new(name);
+        let func = Function::new(name, &self);
         self.funcs.push(func);
 
         self.funcs.last_mut().unwrap()
@@ -69,7 +69,7 @@ impl Context {
         let mut linker = JitLinker::new();
 
         for func in self.funcs.iter_mut() {
-            let func = func.asm_func();
+            let func = func.asm_func()?;
             let compiled = func.compile();
 
             let func_name = func.name();

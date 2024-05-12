@@ -1,7 +1,7 @@
 use std::{collections::HashMap, error::Error};
 
 use iced_x86::code_asm::*;
-use crate::contxt::link::Link;
+use crate::{contxt::{contxt::Context, link::Link}, target::call_conv::TargetCallConv};
 
 /// Stores ir for function which can be compiled
 pub struct AsmFunction {
@@ -10,17 +10,20 @@ pub struct AsmFunction {
     gen: Vec<u8>,
     pub relocs: Vec<(Link, usize)>,
     pub data: HashMap<String, Vec<u8>>,
+
+    pub call: TargetCallConv,
 }
 
 impl AsmFunction {
     /// Creates a function
-    pub fn new(name: &str) -> Self {
+    pub fn new(name: &str, contxt: &Context) -> Self {
         Self {
             name: name.to_string(),
             asm: CodeAssembler::new(64).unwrap(), // unwrap because i i made it just so it can't give error
             relocs: vec![],
             gen: vec![],
             data: HashMap::new(),
+            call: contxt.call.clone(),
         }
     }
 
