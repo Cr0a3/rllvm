@@ -27,4 +27,4 @@ Here is a bit of ToDo for my libary
 
 # v0.1.3
  - [ ] Implement `args` to the high level ir
- - [ ] Add option (in `context`) to compile to object file
+ - [x] Add option (in `context`) to compile to object file

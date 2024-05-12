@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{error::Error, fmt::Display};
 
 use target_lexicon::{Architecture::{X86_32, X86_64}, CallingConvention::*, Triple, X86_32Architecture::*};
 use crate::{func::Function, target::call_conv::TargetCallConv};
@@ -28,6 +28,7 @@ pub struct Context {
     funcs: Vec<Function>,
 
     pub call: TargetCallConv,
+    triple: Triple,
 }
 
 impl Context {
@@ -53,6 +54,7 @@ impl Context {
         Ok(Self { 
             funcs: vec![],
             call: TargetCallConv::new(call),
+            triple: target,
         })
     }
 
@@ -89,5 +91,61 @@ impl Context {
 
         let func = linker.engine();
         Ok(func)
+    }
+
+    #[cfg(feature = "obj")]
+    pub fn write(&mut self, path: &str) -> Result<(), Box<dyn Error>> {
+        use std::collections::HashMap;
+
+        use formatic::{Arch, BinFormat, Decl, Endian, ObjectBuilder, Scope};
+        use crate::contxt::link::Link;
+
+        let arch = match self.triple.architecture {
+            X86_32(_) => Arch::X86_64,
+            X86_64 =>  Arch::X86_64,
+            _ => Arch::Unknown,
+        };
+
+        let fmt = match self.triple.binary_format {
+            target_lexicon::BinaryFormat::Elf => BinFormat::Elf,
+            target_lexicon::BinaryFormat::Coff => BinFormat::Coff,
+            target_lexicon::BinaryFormat::Macho => BinFormat::Macho,
+            _ => BinFormat::host(),
+        };
+
+        let mut obj = ObjectBuilder::new(path);
+
+        let mut funcs: HashMap<String, (Vec<u8>, Vec<Link>, Vec<(&str, Vec<u8>)>)> = HashMap::new();
+
+        // Insert values
+        for func in self.funcs.iter_mut() {
+            let asm = func.asm_func()?;
+            let code = asm.compile();
+            let data = asm.data();
+            let relocs = asm.relocs();
+            let name = asm.name.clone();
+
+            funcs.insert(name.to_string(), (code, relocs, data));
+        }
+
+        for func in funcs {
+            obj.define(&func.0, func.1.0);
+            obj.add_decl(&func.0, Decl::Function(Scope::Private));
+
+            for data in func.1.2 {
+                let name = format!(".L{}", data.0);
+                obj.define(&name, data.1);
+                obj.add_decl(&name, Decl::Data(Scope::Private));
+            }
+
+            for link in func.1.1 {
+                let formatic_link = formatic::Link {from: link.from, to: link.to, at: link.at};
+                obj.link(formatic_link);
+            }
+        }
+
+        obj.write(fmt, arch, Endian::Litte)?;
+
+        Ok(())
     }
 }
