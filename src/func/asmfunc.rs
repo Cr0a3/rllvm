@@ -12,6 +12,8 @@ pub struct AsmFunction {
     pub data: HashMap<String, Vec<u8>>,
 
     pub call: TargetCallConv,
+
+    req_names: usize,
 }
 
 impl AsmFunction {
@@ -24,6 +26,7 @@ impl AsmFunction {
             gen: vec![],
             data: HashMap::new(),
             call: contxt.call.clone(),
+            req_names: 0,
         }
     }
 
@@ -82,5 +85,13 @@ impl AsmFunction {
         }
 
         ret
+    }
+
+    /// Requests a new name for a label
+    pub fn req_name(&mut self) -> String {
+        let req = format!("{}", self.req_names);
+        self.req_names += 1;
+
+        req
     }
 }

@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use rllvm::{contxt::{contxt::Context, jit::JitFunction}, target::call_conv::TargetCallConv};
+use rllvm::{contxt::{contxt::Context, jit::JitFunction}, ir::ir::Return, target::call_conv::TargetCallConv};
 
 #[test]
 fn asm_function_jit() -> Result<(), Box<dyn Error>>{
@@ -25,6 +25,24 @@ fn asm_function_jit() -> Result<(), Box<dyn Error>>{
         println!("main() -> {}", out);
 
         assert_eq!(out, 138);
+    }
+
+    Ok(())
+}
+
+#[test]
+fn return_types() -> Result<(), Box<dyn Error>> {
+    let mut contxt = Context::new(target_lexicon::Triple::host())?;
+    let func = contxt.add_function("test_f32");
+    func.ir.push( Box::from(Return::new(0.5 as f32)) );
+
+    unsafe {
+        let mut func: JitFunction<unsafe extern "C" fn() -> f32> = contxt.get_jit_function("test_f32")?;
+        let out = func.call();
+
+        println!("out: {}", out);
+
+        assert_eq!(out, 0.5 as f32);
     }
 
     Ok(())
