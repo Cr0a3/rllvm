@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::{collections::HashMap, error::Error};
 
 use iced_x86::code_asm::*;
 use crate::contxt::link::Link;
@@ -9,6 +9,7 @@ pub struct AsmFunction {
     pub asm: CodeAssembler,
     gen: Vec<u8>,
     pub relocs: Vec<(Link, usize)>,
+    pub data: HashMap<String, Vec<u8>>,
 }
 
 impl AsmFunction {
@@ -19,6 +20,7 @@ impl AsmFunction {
             asm: CodeAssembler::new(64).unwrap(), // unwrap because i i made it just so it can't give error
             relocs: vec![],
             gen: vec![],
+            data: HashMap::new(),
         }
     }
 
@@ -70,6 +72,12 @@ impl AsmFunction {
 
     /// Returns the data this function works with
     pub fn data(&self) -> Vec<(&str, Vec<u8>)> {
-        vec![]
+        let mut ret: Vec<(&str, Vec<u8>)> = vec![];
+
+        for data in &self.data {
+            ret.push( (data.0, data.1.to_owned()) );
+        }
+
+        ret
     }
 }
