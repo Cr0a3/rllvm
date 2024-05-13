@@ -9,6 +9,7 @@ pub struct Link {
     pub to: String,
     pub at: usize,
     pub size: usize,
+    pub replace: bool,
 }
 
 /// ### JitLinker - A runtime linker for JIT functions
@@ -134,15 +135,42 @@ impl JitLinker {
 
         for link in self.relocs.iter() {
             let offset = funcs_p.get(&link.from).unwrap().1;
-            let pos = funcs_p.get(&link.to).unwrap().1 as i32;
-            let pos = pos - link.size as i32;
+            let target = funcs_p.get(&link.to).unwrap();
+
 
             let at = offset + link.at;
-            let pos = pos - at as i32;
-            let bytes = pos.to_le_bytes();
+
+            let mut pos: Vec<u8> = vec![];
+
+            if link.replace {
+                let x = target.0;
+
+                for i in 0..(link.size - 1) {
+                    let given = x.get(i);
+                    match given {
+                        Some(x) => pos.push(*x),
+                        None => pos.push(0),
+                    }
+                }
+            } else {
+                let _pos = target.1 as i32;
+                let _pos = _pos - link.size as i32;
+                let _pos = _pos - at as i32;
+                //let _pos  = _pos + 1;
+                
+                let _pos = _pos.to_le_bytes();
+
+                for i in 0..(link.size - 1) {
+                    let given = _pos.get(i);
+                    match given {
+                        Some(x) => pos.push(*x),
+                        None => pos.push(0),
+                    }
+                }
+            }
             
-            for b in 0..link.size  {
-                ret[(at + b) as usize] = bytes[b];
+            for b in 0..(link.size - 1) {
+                ret[(at + b) as usize] = pos[b];
             }
         }
 

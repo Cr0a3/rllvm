@@ -58,7 +58,7 @@ impl AsmFunction {
 
         let pos = self.gen.len();
 
-        let link = Link { from: self.name.clone(), to: to.to_string(), at: (pos as isize + rel) as usize, size: size };
+        let link = Link { from: self.name.clone(), to: to.to_string(), at: (pos as isize + rel) as usize, size: size, replace: false };
 
         self.relocs.push((link, pos));
 

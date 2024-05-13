@@ -1,4 +1,4 @@
-use iced_x86::code_asm::*;
+use iced_x86::{code_asm::*, Code, Instruction, MemoryOperand, Register};
 
 use crate::func::AsmFunction;
 
@@ -50,7 +50,7 @@ impl Compile for Add<AsmRegister64, i32> {
 impl Compile for Return<i32> {
     fn compile(&self, asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
         asm.asm.mov(asm.call.ret32(), self.inner1)?;
-        asm.asm.ret();
+        asm.asm.ret()?;
         
         Ok(())
     }
@@ -59,15 +59,18 @@ impl Compile for Return<i32> {
 impl Compile for Return<i64> {
     fn compile(&self, asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
         asm.asm.mov(asm.call.ret64(), self.inner1)?;
-        asm.asm.ret();
+        asm.asm.ret()?;
         
         Ok(())
     }
 }
-/*
+
 impl Compile for Return<f32> {
     fn compile(&self, asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
-        asm.asm.movss(asm.call.retf(), dword_ptr(rip + 0))?;
+        let mem = MemoryOperand::new(Register::RIP, Register::None, 1, 0, 1, false, Register::None);
+        let instr = Instruction::with2(Code::Movd_xmm_rm32, asm.call.retf().into(), mem)?;
+
+        asm.asm.add_instruction(instr)?;
 
         let req = asm.req_name();
         asm.reloc_at_current_pos(&req, 5, 4)?;
@@ -81,7 +84,10 @@ impl Compile for Return<f32> {
 
 impl Compile for Return<f64> {
     fn compile(&self, asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
-        asm.asm.movss(asm.call.retf(), qword_ptr(rip + 0))?;
+        let mem = MemoryOperand::new(Register::RIP, Register::None, 1, 0, 1, false, Register::None);
+        let instr = Instruction::with2(Code::Movd_xmm_rm32, asm.call.retf().into(), mem)?;
+
+        asm.asm.add_instruction(instr)?;
 
         let req = asm.req_name();
         asm.reloc_at_current_pos(&req, 5, 4)?;
@@ -89,4 +95,4 @@ impl Compile for Return<f64> {
         
         Ok(())
     }
-}*/
+}
