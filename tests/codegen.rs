@@ -36,6 +36,8 @@ fn return_types() -> Result<(), Box<dyn Error>> {
     let func = contxt.add_function("test_f32");
     func.ir.push( Box::from(Return::new(0.5 as f32)) );
 
+    // contxt.write("test.o")?;
+
     unsafe {
         let mut func: JitFunction<unsafe extern "C" fn() -> f32> = contxt.get_jit_function("test_f32")?;
         let out = func.call();

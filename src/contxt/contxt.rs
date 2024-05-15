@@ -72,7 +72,7 @@ impl Context {
 
         for func in self.funcs.iter_mut() {
             let func = func.asm_func()?;
-            let compiled = func.compile();
+            let compiled = func.compile()?;
 
             let func_name = func.name();
 
@@ -120,7 +120,7 @@ impl Context {
         // Insert values
         for func in self.funcs.iter_mut() {
             let asm = func.asm_func()?;
-            let code = asm.compile();
+            let code = asm.compile()?;
             let data = asm.data();
             let relocs = asm.relocs();
             let name = asm.name.clone();

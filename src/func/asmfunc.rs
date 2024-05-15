@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error::Error};
+use std::{collections::{HashMap, VecDeque}, error::Error};
 
 use iced_x86::code_asm::*;
 use crate::{contxt::{contxt::Context, link::Link}, target::call_conv::TargetCallConv};
@@ -7,13 +7,15 @@ use crate::{contxt::{contxt::Context, link::Link}, target::call_conv::TargetCall
 pub struct AsmFunction {
     pub name: String,
     pub asm: CodeAssembler,
-    gen: Vec<u8>,
+    gen: VecDeque<u8>,
     pub relocs: Vec<(Link, usize)>,
     pub data: HashMap<String, Vec<u8>>,
 
     pub call: TargetCallConv,
 
     req_names: usize,
+
+    stack_safe: bool,
 }
 
 impl AsmFunction {
@@ -23,10 +25,11 @@ impl AsmFunction {
             name: name.to_string(),
             asm: CodeAssembler::new(64).unwrap(), // unwrap because i i made it just so it can't give error
             relocs: vec![],
-            gen: vec![],
+            gen: VecDeque::new(),
             data: HashMap::new(),
             call: contxt.call.clone(),
             req_names: 0,
+            stack_safe: false,
         }
     }
 
@@ -35,17 +38,53 @@ impl AsmFunction {
         &self.name
     }
 
-    /// Compiles the function
-    pub fn compile(&mut self) -> Vec<u8> {
+    /// Makes the function stack safe so you can use the stack
+    pub fn make_stack_safe(&mut self) -> Result<(), Box<dyn Error>> {
+        self.stack_safe = true;
+
+        let mut asm = CodeAssembler::new(64)?;
+
+        asm.endbr64()?;
+        asm.push(rbp)?;
+        asm.mov(rbp, rsp)?;
+        asm.sub(rsp, self.call.shadow as i32)?;
+
+        let gen = asm.assemble(0)?;
+
+        for byte in gen {
+            self.gen.push_front( byte );
+        }
+
+        Ok(())
+    }
+
+    /// Compiles the function (a return will automaticly be added)
+    pub fn compile(&mut self) -> Result<Vec<u8>, Box<dyn Error>> {
         self.gen_current().unwrap();
-        self.gen.clone()
+        let mut ret: Vec<u8> = self.gen.clone().into();
+
+        if self.stack_safe {
+            let mut asm = CodeAssembler::new(64)?;
+
+            asm.add(rsp, self.call.shadow as i32)?;
+            asm.pop(rbp)?;
+            asm.ret()?;
+
+            let gen = asm.assemble(0)?;
+
+            for byte in gen {
+                ret.push( byte );
+            }
+        }
+
+        Ok(ret)
     }
 
     fn gen_current(&mut self) -> Result<(), Box<dyn Error>>{
         let gen = self.asm.assemble(0)?;
 
         for byte in gen {
-            self.gen.push( byte );
+            self.gen.push_back( byte );
         }
 
         self.asm.reset();

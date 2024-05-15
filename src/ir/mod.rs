@@ -1,4 +1,6 @@
 pub mod compile;
+pub mod var;
+pub mod r#type;
 
 macro_rules! IrTypeWith2 {
     ($name:tt, $trait:ident, $param1:tt, $param2:tt) => {
@@ -9,11 +11,13 @@ macro_rules! IrTypeWith2 {
 
         impl<$param1, $param2> $name<$param1, $param2> {
             #[allow(dead_code)]
-            pub fn new(op0: $param1, op1: $param2) -> Self {
-                Self {
-                    inner1: op0,
-                    inner2: op1,
-                }
+            pub fn new(op0: $param1, op1: $param2) -> Box<Self> {
+                Box::from(
+                    Self {
+                        inner1: op0,
+                        inner2: op1,
+                    }
+                )
             }
         }
 
@@ -30,10 +34,12 @@ macro_rules! IrTypeWith1 {
 
         impl<$param1> $name<$param1> {
             #[allow(dead_code)]
-            pub fn new(op0: $param1) -> Self {
-                Self {
-                    inner1: op0,
-                }
+            pub fn new(op0: $param1) -> Box<Self> {
+                Box::from(
+                    Self {
+                        inner1: op0,
+                    }
+                )
             }
         }
 

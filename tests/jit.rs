@@ -28,10 +28,10 @@ fn jit_linker() {
         0xc3,                           // ret
     ], false);
 
-    linker.relocs.push( Link { from: "main".into(), to: "test".into(), at: 1, size: 4});
+    linker.relocs.push( Link { from: "main".into(), to: "test".into(), at: 1, size: 4, replace: false});
 
     let mut func: JitFunction<unsafe extern "C" fn() -> u32> = unsafe { linker.engine() };
-
+    
     unsafe {
         let out = func.call();
         assert_eq!(out, 5);
