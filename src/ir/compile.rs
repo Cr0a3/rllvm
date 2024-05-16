@@ -102,17 +102,6 @@ MathStructVarGenAdd!(Mul,
     Code::Mulss_xmm_xmmm32
 );
 
-
-
-MathStructVarGenAdd!(Div,
-    Code::Div_, 
-    Code::Mul_rm32_r32, 
-    Code::Mul_rm16_r16, 
-    Code::Mul_rm8_r8, 
-    Code::Mulsd_xmm_xmmm64, 
-    Code::Mulss_xmm_xmmm32
-);
-
 impl Compile for Return<i32> {
     fn compile(&self, asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
         asm.asm.mov(asm.call.ret32(), self.inner1)?;
@@ -137,7 +126,7 @@ impl Compile for Return<f32> {
         asm.asm.add_instruction(instr)?;
 
         let req = asm.req_name();
-        asm.reloc_at_current_pos(&req, 5, 4)?;
+        asm.reloc_at_current_pos(&req, 4, 4)?;
         asm.data.insert(req, self.inner1.to_be_bytes().into());
         Ok(())
     }
@@ -158,35 +147,43 @@ impl Compile for Return<f64> {
     }
 }
 
-impl<T, U> Compile for Return<Add<T, U>> where Add<T, U>: Compile {
-    fn compile(&self, asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
-        self.inner1.compile(asm)?;
-        let reg = self.inner1.out_reg().unwrap(); // Implemented for add so it won't panic
-
-        if reg.is_gpr64() {
-            if reg != asm.call.ret64_reg() {
-                asm.asm.add_instruction(Instruction::with2(Code::Mov_rm64_r64, asm.call.ret64_reg(), reg)?)?;
-            }
-        } else if reg.is_gpr32() {
-            if reg.is_gpr32() {
-                if reg != asm.call.ret64_reg() {
-                    asm.asm.add_instruction(Instruction::with2(Code::Mov_rm32_r32, asm.call.ret32_reg(), reg)?)?;
+macro_rules! ExprReturn {
+    ($name:tt) => {
+        impl<T, U> Compile for Return<$name<T, U>> where $name<T, U>: Compile {
+            fn compile(&self, asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
+                self.inner1.compile(asm)?;
+                let reg = self.inner1.out_reg().unwrap(); // Implemented for add so it won't panic
+        
+                if reg.is_gpr64() {
+                    if reg != asm.call.ret64_reg() {
+                        asm.asm.add_instruction(Instruction::with2(Code::Mov_rm64_r64, asm.call.ret64_reg(), reg)?)?;
+                    }
+                } else if reg.is_gpr32() {
+                    if reg.is_gpr32() {
+                        if reg != asm.call.ret64_reg() {
+                            asm.asm.add_instruction(Instruction::with2(Code::Mov_rm32_r32, asm.call.ret32_reg(), reg)?)?;
+                        }
+                    }
+                } else if reg.is_gpr16() {
+                    if reg != asm.call.ret16_reg() {
+                        asm.asm.add_instruction(Instruction::with2(Code::Mov_rm16_r16, asm.call.ret16_reg(), reg)?)?;
+                    }
+                } else if reg.is_gpr8() {
+                    if reg != asm.call.ret8_reg() {
+                        asm.asm.add_instruction(Instruction::with2(Code::Mov_rm64_r64, asm.call.ret8_reg(), reg)?)?;
+                    }
                 }
+        
+                Ok(())
             }
-        } else if reg.is_gpr16() {
-            if reg != asm.call.ret16_reg() {
-                asm.asm.add_instruction(Instruction::with2(Code::Mov_rm16_r16, asm.call.ret16_reg(), reg)?)?;
-            }
-        } else if reg.is_gpr8() {
-            if reg != asm.call.ret8_reg() {
-                asm.asm.add_instruction(Instruction::with2(Code::Mov_rm64_r64, asm.call.ret8_reg(), reg)?)?;
+            
+            fn out_reg(&self) -> Option<Register> {
+                None
             }
         }
-
-        Ok(())
-    }
-    
-    fn out_reg(&self) -> Option<Register> {
-        None
-    }
+    };
 }
+
+ExprReturn!(Add);
+ExprReturn!(Sub);
+ExprReturn!(Mul);

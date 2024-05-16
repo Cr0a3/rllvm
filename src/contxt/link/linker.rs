@@ -170,11 +170,6 @@ impl JitLinker {
             }
             
             for b in 0..(link.size - 1) {
-                println!("at {}", at);
-                println!("b {}", b);
-                println!("at + b {}", at + b);
-                println!("at + b as usize{}", (at + b) as usize);
-                println!("ret.len() {}", ret.len());
                 ret[( (at + b) as usize ) - 2] = pos[b];
             }
         }

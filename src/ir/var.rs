@@ -1,4 +1,4 @@
-use std::{error::Error, ops::{Add, Div, Mul, Sub}};
+use std::{error::Error, ops::{Add, Mul, Sub}};
 
 use iced_x86::{code_asm::*, Code, Instruction, MemoryOperand, Register};
 use super::r#type::Type;
@@ -174,8 +174,7 @@ impl Mul<VarGen> for VarGen{
     }
 }
 
-
-
+/*
 impl Div<VarGen> for VarGen{
     type Output = Box<super::ir::Div<VarGen, VarGen>>;
 
@@ -184,4 +183,4 @@ impl Div<VarGen> for VarGen{
             self, rhs
         )
     }
-}
+}*/

@@ -7,14 +7,14 @@ fn main() -> Result<(), Box<dyn Error>>{
     let func = contxt.add_function("add");
     let asm = func.asm_func()?;
 
-    let x = VarGen::new_reg(Type::u64, asm.call.arg64_reg(0).unwrap());
-    let y = VarGen::new_reg(Type::u64, asm.call.arg64_reg(1).unwrap());
+    let x = VarGen::new_reg(Type::i64, asm.call.arg64_reg(0).unwrap());
+    let y = VarGen::new_reg(Type::i64, asm.call.arg64_reg(1).unwrap());
 
     func.ir.push( Return::new(*(x + y) ) );
 
 
     unsafe {
-        let mut func: JitFunction<unsafe extern "C" fn(u64, u64) -> u64> = contxt.get_jit_function("add")?;
+        let mut func: JitFunction<unsafe extern "C" fn(i64, i64) -> i64> = contxt.get_jit_function("add")?;
         let out = func.call(5, 5);
 
         println!("main() -> {}", out);
