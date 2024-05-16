@@ -75,7 +75,7 @@ impl TargetCallConv {
             arg32:  vec![ecx,   edx,    r8d,    r9d                 ],
             arg64:  vec![rcx,   rdx,    r8,     r9                  ],
 
-            argf: vec![xmm0,    xmm1,   xmm2,   xmm3,   xmm4,   xmm5, xmm6, xmm7 ],
+            argf: vec![xmm0,    xmm1,   xmm2,   xmm3, ],
 
             ret8: al,
             ret16: ax,
@@ -88,7 +88,7 @@ impl TargetCallConv {
             arg32_reg:  vec![Register::ECX, Register::EDX, Register::R8D, Register::R9D],
             arg64_reg:  vec![Register::RCX, Register::RDX, Register::R8, Register::R9],
 
-            argf_reg: vec![Register::XMM0, Register::XMM1, Register::XMM2, Register::XMM3, Register::XMM4, Register::XMM5, Register::XMM6, Register::XMM7 ],
+            argf_reg: vec![Register::XMM0, Register::XMM1, Register::XMM2, Register::XMM3 ],
 
             ret8_reg: Register::AL,
             ret16_reg: Register::AX,
