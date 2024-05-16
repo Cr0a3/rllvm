@@ -1,13 +1,13 @@
 use std::error::Error;
 
 use iced_x86::code_asm::*;
-use rllvm::contxt::{contxt::Context, jit::JitFunction};
+use rllvm::{contxt::{contxt::Context, jit::JitFunction}, ir::r#type::Type};
 use target_lexicon::Triple;
 
 fn main() -> Result<(), Box<dyn Error>>{
     let mut contxt = Context::new( Triple::host() )?;
     let call = contxt.call.clone();
-    let func = contxt.add_function("main");
+    let func = contxt.add_function("main", vec![], Type::u32);
 
     let asm = func.asm_func()?;
 
@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn Error>>{
     asm.asm.ret()?;
 
     
-    let add = contxt.add_function("add");
+    let add = contxt.add_function("add", vec![Type::u32, Type::u32], Type::u32);
 
     let add = add.asm_func()?;
 

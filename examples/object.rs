@@ -1,5 +1,5 @@
 use std::error::Error;
-use rllvm::contxt::contxt::Context;
+use rllvm::{contxt::contxt::Context, ir::r#type::Type};
 use target_lexicon::Triple;
 
 fn main() -> Result<(), Box<dyn Error>>{
@@ -8,7 +8,7 @@ fn main() -> Result<(), Box<dyn Error>>{
     let arg1 = call.arg32(0).unwrap();
     let arg2 = call.arg32(1).unwrap();
 
-    let add = contxt.add_function("add");
+    let add = contxt.add_function("add", vec![Type::u64, Type::u64], Type::u32);
 
     let add = add.asm_func()?;
 

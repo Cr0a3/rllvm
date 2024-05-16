@@ -1,7 +1,7 @@
 use std::{error::Error, fmt::Display};
 
 use target_lexicon::{Architecture::{X86_32, X86_64}, CallingConvention::*, Triple, X86_32Architecture::*};
-use crate::{func::Function, target::call_conv::TargetCallConv};
+use crate::{func::Function, ir::r#type::Type, target::call_conv::TargetCallConv};
 use super::{jit::JitFunction, link::JitLinker};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -59,8 +59,8 @@ impl Context {
     }
 
     /// Adds a function to the context
-    pub fn add_function(&mut self, name: &str) -> &mut Function {
-        let func = Function::new(name, &self);
+    pub fn add_function(&mut self, name: &str, args: Vec<Type>, ret: Type) -> &mut Function {
+        let func = Function::new(name, &self, args, ret);
         self.funcs.push(func);
 
         self.funcs.last_mut().unwrap()
@@ -117,9 +117,18 @@ impl Context {
 
         let mut funcs: HashMap<String, (Vec<u8>, Vec<Link>, Vec<(&str, Vec<u8>)>)> = HashMap::new();
 
+        let mut renames: HashMap<String, String> = HashMap::new();
+
         // Insert values
         for func in self.funcs.iter_mut() {
+            if func.export {
+                let old_name = func.name().to_string();
+                func.maybe_renaming(); // rename
+                renames.insert(old_name, func.name().to_string());
+            }
+
             let asm = func.asm_func()?;
+
             let code = asm.compile()?;
             let data = asm.data();
             let relocs = asm.relocs();
@@ -139,6 +148,16 @@ impl Context {
             }
 
             for link in func.1.1 {
+                let mut link = link;
+
+                if renames.contains_key(&link.from) {
+                    link.from = renames.get(&link.from).unwrap().to_string();
+                }
+                
+                if renames.contains_key(&link.to) {
+                    link.from = renames.get(&link.to).unwrap().to_string();
+                }
+
                 let formatic_link = formatic::Link {from: link.from, to: link.to, at: link.at};
                 obj.link(formatic_link);
             }

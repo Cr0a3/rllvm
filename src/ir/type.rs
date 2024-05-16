@@ -48,4 +48,19 @@ impl Type {
             Type::f32 | Type::f64 => true,
         }
     }
+
+    pub fn name(&self) -> &str {
+        match self {
+            Type::u64 => "u64",
+            Type::u32 => "u32",
+            Type::u16 => "u16",
+            Type::u8 => "u8",
+            Type::i64 => "i64",
+            Type::i32 => "i32",
+            Type::i16 => "i16",
+            Type::i8 => "i8",
+            Type::f64 => "f64",
+            Type::f32 => "f32",
+        }
+    }
 }
