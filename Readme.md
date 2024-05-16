@@ -15,9 +15,17 @@ Here is a bit of ToDo for my libary:
     - [x] Use traits `impl Compiler for Ir::Add<Var, Int>` so i can overload the enum variants
     - [x] Make it compilable
     - [ ] Implement `mov`, `add`, `sub`, `mul`, `div` | `ints`, `floats`
-  - [ ] Starting high level ir builder
+        - [ ] mov
+        - [x] add
+        - [x] sub
+        - [x] mul
+        - [ ] div
+        - [x] ints
+        - [ ] floats
+  - [x] Starting high level ir builder
+    - [x] via traits
 
-##  v0.1.3
+## v0.1.3
  - [ ] Implement `args` to the high level ir
  - [x] Add option (in `context`) to compile to object file
  - [ ] Naming convention
