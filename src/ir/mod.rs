@@ -50,5 +50,8 @@ macro_rules! IrTypeWith1 {
 
 pub mod ir {
     IrTypeWith2!(Add, AddTrait, T, U);
+    IrTypeWith2!(Sub, SubTrait, T, U);
+    IrTypeWith2!(Mul, MulTrait, T, U);
+    IrTypeWith2!(Div, DivTrait, T, U);
     IrTypeWith1!(Return, ReturnTrait, T);
 }

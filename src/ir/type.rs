@@ -11,6 +11,9 @@ pub enum Type {
     i32,
     i16,
     i8,
+
+    f64,
+    f32,
 }
 
 impl Type {
@@ -20,6 +23,9 @@ impl Type {
             Type::u32 | Type::i32 => 4,
             Type::u16 | Type::i16 => 2,
             Type::u8  | Type::i8  => 1,
+
+            Type::f64 => 8,
+            Type::f32 => 4,
         }
     }
 
@@ -29,6 +35,7 @@ impl Type {
             Type::u32 | Type::i32 => false,
             Type::u16 | Type::i16 => false,
             Type::u8  | Type::i8  => false,
+            Type::f32 | Type::f64 => false,
         }
     }
 
@@ -38,6 +45,7 @@ impl Type {
             Type::u32 | Type::i32 => true,
             Type::u16 | Type::i16 => true,
             Type::u8  | Type::i8  => true,
+            Type::f32 | Type::f64 => true,
         }
     }
 }
