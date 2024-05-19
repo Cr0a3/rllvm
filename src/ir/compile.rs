@@ -6,11 +6,8 @@ use self::{ir::*, r#type::Type, var::VarGen};
 
 use super::{*};
 
+
 pub trait Compile {
-    /// Compiles the ir to 
-    /// * `HashMap<String, Vec<u8>>` -> Data
-    /// * `Vec<Link>`   -> Relocs (at is rel from the start of the ir)
-    /// * `Vec<u8>`     -> Machine code
     fn compile(&self, _asm: &mut AsmFunction) -> Result<(), Box<dyn std::error::Error>> {
         Ok(())
     }

@@ -1,4 +1,4 @@
-/// Executur for the inner function
+/// Executor for the inner function
 pub struct ExecEngine<T> {
     pub inner: T,
 }

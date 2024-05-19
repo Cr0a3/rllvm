@@ -3,7 +3,7 @@ use std::{error::Error, ops::{Add, Mul, Sub}};
 use iced_x86::{code_asm::*, Code, Instruction, MemoryOperand, Register};
 use super::r#type::Type;
 
-/// A variable code gen helper
+/// A variable code generation helper
 pub struct VarGen {
     pub on_stack: bool,
     pub in_reg: bool,

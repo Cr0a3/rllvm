@@ -1,6 +1,10 @@
+//! RLLVM Naming Convention
+
+/// Generate names in in the **RLLVM Naming Convention** format
 pub struct NamingGenerator {}
 
 impl NamingGenerator {
+    /// Creates a new naming generator
     pub fn new() -> Self {
         Self {
 

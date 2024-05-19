@@ -1,5 +1,18 @@
 #![allow(non_camel_case_types)]
 
+/// Stores Type information 
+/// used for arguments and return types
+/// 
+/// ## Example
+/// ```rust
+/// use rllvm::ir::r#type::Type;
+/// 
+/// assert_eq!(Type::u64.reg(), true);
+/// assert_eq!(Type::f32.reg(), true);
+/// assert_eq!(Type::u64.stack(), false);
+/// assert_eq!(Type::i8.size(), 1);
+/// assert_eq!(Type::i32.name(), "i32");
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Type {
     u64,
@@ -17,6 +30,12 @@ pub enum Type {
 }
 
 impl Type {
+    /// Returns the size of the type
+    /// Example:
+    /// ```rust
+    /// use rllvm::ir::r#type::Type;
+    /// assert_eq!(Type::i16.size(), 2)
+    /// ```
     pub fn size(&self) -> usize {
         match self {
             Type::u64 | Type::i64 => 8,
@@ -29,6 +48,8 @@ impl Type {
         }
     }
 
+    /// Returns if the type is normally
+    /// stored on the stack
     pub fn stack(&self) -> bool {
         match self {
             Type::u64 | Type::i64 => false,
@@ -39,6 +60,8 @@ impl Type {
         }
     }
 
+    /// Returns if the type is normally
+    /// stored in registers
     pub fn reg(&self) -> bool {
         match self {
             Type::u64 | Type::i64 => true,
@@ -49,6 +72,7 @@ impl Type {
         }
     }
 
+    /// Returns the name of the types
     pub fn name(&self) -> &str {
         match self {
             Type::u64 => "u64",

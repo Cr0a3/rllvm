@@ -33,7 +33,7 @@ impl BinFormat {
 }
 
 #[derive(Debug, Clone)]
-/// A struct for building object files
+/// A helper class for building object files
 pub struct ObjectBuilder {
     decls: Vec<(String, Decl)>,
     sym: HashMap<String, Vec<u8>>,

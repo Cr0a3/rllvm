@@ -23,7 +23,35 @@ impl Display for ContextError {
 
 impl std::error::Error for ContextError {}
 
-/// Stores all functions
+/// Stores all functions/data/etc
+/// 
+/// Example usage (creates add function):
+/// ```
+/// use std::error::Error;
+/// use rllvm::{contxt::{contxt::Context, jit::JitFunction}, ir::{ir::Return, r#type::Type}};
+/// use target_lexicon::Triple;
+/// 
+/// fn main() -> Result<(), Box<dyn Error>>{
+///     let mut contxt = Context::new( Triple::host() )?;
+///     let func = contxt.add_function("add", vec![Type::u32, Type::u32], Type::u32);
+///     let asm = func.asm_func()?;
+/// 
+///     let x = asm.arg(0).unwrap();
+///     let y = asm.arg(1).unwrap();
+/// 
+///     func.ir.push( Return::new(*(x + y) ) );
+/// 
+/// 
+///     unsafe {
+///         let mut func: JitFunction<unsafe extern "C" fn(u32, u32) -> u32> = contxt.get_jit_function("add")?;
+///         let out = func.call(5, 5);
+/// 
+///         println!("main() -> {}", out);
+///     }
+/// 
+///     Ok(())
+/// }
+/// ```
 pub struct Context {
     funcs: Vec<Function>,
 
@@ -66,7 +94,34 @@ impl Context {
         self.funcs.last_mut().unwrap()
     }
 
-    /// Requests jit function
+    #[cfg(feature = "jit")]
+    /// Compiles the context and requests the given jit function
+    /// 
+    /// Example:
+    /// 
+    /// ```
+    /// use std::error::Error;
+    /// use rllvm::{contxt::{contxt::Context, jit::JitFunction}, ir::{ir::*, r#type::Type}};
+    /// use target_lexicon::Triple;
+    /// 
+    /// fn main() -> Result<(), Box<dyn Error>>{
+    ///     let mut contxt = Context::new( Triple::host() )?;
+    ///     let func = contxt.add_function("main", vec![], Type::u32);
+    /// 
+    ///     func.ir.push( Return::new(5) );
+    /// 
+    ///     unsafe {
+    ///         let mut func: JitFunction<unsafe extern "C" fn() -> u32> = contxt.get_jit_function("main")?;
+    ///         let out = func.call();
+    /// 
+    ///         println!("main() -> {}", out);
+    /// 
+    ///         assert_eq!(out, 5);
+    ///     }
+    /// 
+    ///     Ok(())
+    /// }
+    /// ```
     pub unsafe fn get_jit_function<T>(&mut self, name: &str) -> Result<JitFunction<T>, Box<dyn std::error::Error>> {
         let mut linker = JitLinker::new();
 
@@ -94,6 +149,7 @@ impl Context {
     }
 
     #[cfg(feature = "obj")]
+    /// Writes all functions/data/relocs/etc. into one object file
     pub fn write(&mut self, path: &str) -> Result<(), Box<dyn Error>> {
         use std::collections::HashMap;
 

@@ -3,7 +3,7 @@ use std::{collections::{HashMap, VecDeque}, error::Error};
 use iced_x86::code_asm::*;
 use crate::{contxt::{contxt::Context, link::Link}, ir::{r#type::Type, var::VarGen}, target::call_conv::TargetCallConv};
 
-/// Stores ir for function which can be compiled
+/// Stores the ir for function which can be compiled
 pub struct AsmFunction {
     pub name: String,
     pub asm: CodeAssembler,

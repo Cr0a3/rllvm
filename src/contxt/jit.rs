@@ -11,7 +11,27 @@ use winapi::um::{
     winnt::{MEM_COMMIT, PAGE_EXECUTE_READWRITE},
 };
 
-/// Stores a jit function which you can execute
+/// Stores a jit function which you can be execute
+/// 
+/// Example:
+/// 
+/// ```rust
+/// use rllvm::contxt::jit::JitFunction;
+/// 
+/// #[rustfmt::skip]
+/// fn main() {
+///     let mut func: JitFunction<unsafe extern "C" fn() -> u32> = JitFunction::new(
+///         vec![
+///                 0xb8, 0x05, 0x00, 0x00, 0x00,   // mov eax, 5
+///                 0xc3,                           // ret
+///             ],
+///     );
+///     unsafe {
+///         let out = func.call();
+///         println!("{}", out);
+///     }
+/// }
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct JitFunction<T> {
     pub code: Vec<u8>,
@@ -57,7 +77,7 @@ impl<T> JitFunction<T> {
 }
 
 #[cfg(not(windows))]
-pub unsafe fn alloc_executable_memory(size: usize) -> *mut c_void {
+pub(crate) unsafe fn alloc_executable_memory(size: usize) -> *mut c_void {
     let ptr = libc::mmap(
         ptr::null_mut(),
         size,
@@ -74,17 +94,17 @@ pub unsafe fn alloc_executable_memory(size: usize) -> *mut c_void {
 }
 
 #[cfg(windows)]
-pub unsafe fn alloc_executable_memory(size: usize) -> *mut c_void {
+pub(crate) unsafe fn alloc_executable_memory(size: usize) -> *mut c_void {
     VirtualAlloc(ptr::null_mut(), size, MEM_COMMIT, PAGE_EXECUTE_READWRITE) as *mut c_void
 }
 
 #[cfg(not(windows))]
-pub unsafe fn dealloc_executable_memory(ptr: *mut c_void, size: usize) {
+pub(crate) unsafe fn dealloc_executable_memory(ptr: *mut c_void, size: usize) {
     libc::munmap(ptr, size);
 }
 
 #[cfg(windows)]
-pub unsafe fn dealloc_executable_memory(ptr: *mut c_void, _size: usize) {
+pub(crate) unsafe fn dealloc_executable_memory(ptr: *mut c_void, _size: usize) {
     VirtualFree(
         ptr as *mut winapi::ctypes::c_void,
         0,

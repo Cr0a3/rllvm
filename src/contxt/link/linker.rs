@@ -32,11 +32,10 @@ pub struct Link {
 ///         0xc3,                           // ret
 ///     ], false);
 /// 
-///     linker.relocs.push( Link { from: "main".into(), to: "test".into(), at: 1, size: 4});
-/// 
-///     let mut func: JitFunction<unsafe extern "C" fn() -> u32> = unsafe { linker.engine() };
-/// 
+///     linker.relocs.push( Link { from: "main".into(), to: "test".into(), at: 1, size: 4, replace: false});
+///
 ///     unsafe {
+///         let mut func: JitFunction<unsafe extern "C" fn() -> u32> = linker.engine();
 ///         let out = func.call();
 ///         println!("{}", out);
 ///     }
@@ -170,7 +169,7 @@ impl JitLinker {
             }
             
             for b in 0..(link.size - 1) {
-                ret[( (at + b) as usize ) - 2] = pos[b];
+                ret[(at + b) as usize] = pos[b];
             }
         }
 

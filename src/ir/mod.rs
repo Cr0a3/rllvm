@@ -1,3 +1,5 @@
+//! RLLVM's ir
+
 pub mod compile;
 pub mod var;
 pub mod r#type;
@@ -10,6 +12,7 @@ macro_rules! IrTypeWith2 {
         }
 
         impl<$param1, $param2> $name<$param1, $param2> {
+            /// Creates new instance
             #[allow(dead_code)]
             pub fn new(op0: $param1, op1: $param2) -> Box<Self> {
                 Box::from(
@@ -33,6 +36,7 @@ macro_rules! IrTypeWith1 {
         }
 
         impl<$param1> $name<$param1> {
+            /// Creates new instance
             #[allow(dead_code)]
             pub fn new(op0: $param1) -> Box<Self> {
                 Box::from(

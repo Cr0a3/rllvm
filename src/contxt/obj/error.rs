@@ -1,5 +1,6 @@
 use std::fmt;
 
+/// An error which can occure during the object file writing process
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ObjectError {
     DeclWithoutSymbol,

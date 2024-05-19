@@ -1,6 +1,7 @@
 use target_lexicon::CallingConvention;
 use iced_x86::{code_asm::*, Register};
 
+/// Stores the calling convention
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TargetCallConv {
     arg16: Vec<AsmRegister16>,
@@ -30,6 +31,7 @@ pub struct TargetCallConv {
 }
 
 impl TargetCallConv {
+    /// Returns a new instance
     pub fn new(conv: CallingConvention) -> Self {
         match conv {
             CallingConvention::SystemV => TargetCallConv::linux(),
@@ -38,6 +40,7 @@ impl TargetCallConv {
         }
     }
 
+    /// Returns linux calling convention
     pub fn linux() -> Self {
         Self {
             arg16:  vec![si,     di,    dx,     cx,     r8w,    r9w ],
@@ -69,6 +72,7 @@ impl TargetCallConv {
         }
     }
 
+    /// Returns windows calling convention
     pub fn windows() -> Self {
         Self {
             arg16:  vec![cx,    dx,     r8w,    r9w],

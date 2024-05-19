@@ -18,9 +18,8 @@ fn main() {
     linker.add_reloc( Link { from: "test".into(), to: "test_data".into(), at: 1, size: 4, replace: true} );
     linker.add_label("test_data", vec![5]);
 
-    let mut func: JitFunction<unsafe extern "C" fn() -> u32> = unsafe { linker.engine() };
-
     unsafe {
+        let mut func: JitFunction<unsafe extern "C" fn() -> u32> = linker.engine();
         let out = func.call();
         println!("{}", out);
     }

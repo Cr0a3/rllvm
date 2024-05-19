@@ -1,3 +1,4 @@
+/// Object file links
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Link {
     pub from: String,

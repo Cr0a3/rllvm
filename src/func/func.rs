@@ -4,7 +4,7 @@ use crate::{contxt::contxt::Context, ir::{compile::Compile, r#type::Type}, namin
 
 use super::AsmFunction;
 
-/// Stores ir for function
+/// Stores function data
 pub struct Function {
     name: String,
     asm: AsmFunction,

@@ -1,3 +1,4 @@
+/// A decl for a symbol
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Decl {
     /// Function
@@ -10,6 +11,7 @@ pub enum Decl {
     RData(Scope),
 }
 
+/// The visibility of the decl 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Scope {
     Import,

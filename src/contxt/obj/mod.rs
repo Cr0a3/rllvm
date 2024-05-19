@@ -1,3 +1,5 @@
+//! Writing the object files for rllvm
+
 pub mod decl;
 pub mod error;
 pub mod link;
