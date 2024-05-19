@@ -1,13 +1,13 @@
 use std::error::Error;
 
-use rllvm::{contxt::{contxt::Context, jit::JitFunction}, ir::ir::Return, target::call_conv::TargetCallConv};
+use rllvm::{contxt::{contxt::Context, jit::JitFunction}, ir::{ir::Return, r#type::Type}, target::call_conv::TargetCallConv};
 
 #[test]
 fn asm_function_jit() -> Result<(), Box<dyn Error>>{
     let mut contxt = Context::new(target_lexicon::Triple::host())?;
     let call: TargetCallConv = contxt.call.clone();
     
-    let add = contxt.add_function("add");
+    let add = contxt.add_function("add", vec![Type::u32, Type:: u32], Type::u32);
 
     let add = add.asm_func()?;
     
@@ -33,7 +33,7 @@ fn asm_function_jit() -> Result<(), Box<dyn Error>>{
 #[test]
 fn return_types() -> Result<(), Box<dyn Error>> {
     let mut contxt = Context::new(target_lexicon::Triple::host())?;
-    let func = contxt.add_function("test_f32");
+    let func = contxt.add_function("test_f32", vec![], Type::f32);
     func.ir.push( Return::new(0.5 as f32) );
 
     // contxt.write("test.o")?;

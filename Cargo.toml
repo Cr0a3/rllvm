@@ -8,7 +8,7 @@ description = "LLVM alternativ"
 edition = "2021"
 
 [dependencies]
-formatic = {version = "0.1.1", optional = true }
+object = {version = "0.35.0", features = ["write"], optional = true }
 iced-x86 = { version = "1.21.0", features = ["code_asm"], optional = true }
 libc = { version = "0.2.154", optional = true }
 libloading = { version = "0.8.3", optional = true }
@@ -18,7 +18,7 @@ winapi = { version = "0.3.9", features = ["winnt", "memoryapi", "libloaderapi"],
 [features]
 default = ["jit", "ir", "obj"]
 jit = ["dep:libc", "dep:winapi", "dep:libloading"]
-context = ["dep:iced-x86"]
+context = ["dep:iced-x86", "obj"]
 function = ["dep:iced-x86"]
-obj = ["dep:formatic"]
+obj = ["dep:object"]
 ir = ["context", "function", "dep:iced-x86"]

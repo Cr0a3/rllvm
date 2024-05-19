@@ -69,15 +69,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "formatic"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d805fae97f64fd87b402fca8ad2bd7f7c6c5e9a692d0a7c9eae1fa5e8d95aee"
-dependencies = [
- "object",
-]
-
-[[package]]
 name = "hashbrown"
 version = "0.14.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -144,9 +135,9 @@ dependencies = [
 
 [[package]]
 name = "object"
-version = "0.34.0"
+version = "0.35.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7090bae93f8585aad99e595b7073c5de9ba89fbd6b4e9f0cdd7a10177273ac8"
+checksum = "b8ec7ab813848ba4522158d5517a6093db1ded27575b070f4177b8d12b41db5e"
 dependencies = [
  "crc32fast",
  "flate2",
@@ -184,10 +175,10 @@ dependencies = [
 name = "rllvm"
 version = "0.1.1"
 dependencies = [
- "formatic",
  "iced-x86",
  "libc",
  "libloading",
+ "object",
  "target-lexicon",
  "winapi",
 ]

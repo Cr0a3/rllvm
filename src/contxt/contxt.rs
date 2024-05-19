@@ -97,7 +97,7 @@ impl Context {
     pub fn write(&mut self, path: &str) -> Result<(), Box<dyn Error>> {
         use std::collections::HashMap;
 
-        use formatic::{Arch, BinFormat, Decl, Endian, ObjectBuilder, Scope};
+        use super::obj::{Arch, BinFormat, Decl, Endian, ObjectBuilder, Scope};
         use crate::contxt::link::Link;
 
         let arch = match self.triple.architecture {
@@ -158,7 +158,7 @@ impl Context {
                     link.from = renames.get(&link.to).unwrap().to_string();
                 }
 
-                let formatic_link = formatic::Link {from: link.from, to: link.to, at: link.at};
+                let formatic_link = super::obj::Link {from: link.from, to: link.to, at: link.at};
                 obj.link(formatic_link);
             }
         }
