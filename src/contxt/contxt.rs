@@ -97,16 +97,17 @@ impl Context {
     pub fn write(&mut self, path: &str) -> Result<(), Box<dyn Error>> {
         use std::collections::HashMap;
 
-        use super::obj::{Arch, BinFormat, Decl, Endian, ObjectBuilder, Scope};
+        use object::Architecture;
+
+        use super::obj::{BinFormat, Decl, ObjectBuilder, Scope};
         use crate::contxt::link::Link;
 
         let arch = match self.triple.architecture {
-            X86_32(_) => Arch::X86_64,
-            X86_64 =>  Arch::X86_64,
-            _ => Arch::Unknown,
+            X86_64 | X86_32(_) =>  Architecture::X86_64,
+            _ => Architecture::Unknown,
         };
 
-        let fmt = match self.triple.binary_format {
+        let fmt  = match self.triple.binary_format {
             target_lexicon::BinaryFormat::Elf => BinFormat::Elf,
             target_lexicon::BinaryFormat::Coff => BinFormat::Coff,
             target_lexicon::BinaryFormat::Macho => BinFormat::Macho,
@@ -144,7 +145,7 @@ impl Context {
             for data in func.1.2 {
                 let name = format!(".L{}", data.0);
                 obj.define(&name, data.1);
-                obj.add_decl(&name, Decl::Data(Scope::Private));
+                obj.add_decl(&name, Decl::RData(Scope::Private));
             }
 
             for link in func.1.1 {
@@ -163,7 +164,7 @@ impl Context {
             }
         }
 
-        obj.write(fmt, arch, Endian::Litte)?;
+        obj.write(fmt, arch, object::Endianness::Little)?;
 
         Ok(())
     }

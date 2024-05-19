@@ -1,8 +1,7 @@
 use std::{collections::HashMap, fs::OpenOptions};
 
 use object::{
-    write::{Relocation, SectionId, StandardSection, Symbol, SymbolId, SymbolSection},
-    RelocationEncoding, RelocationFlags, RelocationKind, SymbolFlags, SymbolKind, SymbolScope,
+    write::{Relocation, SectionId, StandardSection, Symbol, SymbolId, SymbolSection}, Architecture, RelocationEncoding, RelocationFlags, RelocationKind, SymbolFlags, SymbolKind, SymbolScope
 };
 
 use super::{Decl, Link, ObjectError, Scope};
@@ -15,6 +14,7 @@ pub enum BinFormat {
     Elf,
     Coff,
     Macho,
+    // Exe // No support for exe because sus errors
 }
 
 impl BinFormat {
@@ -28,57 +28,6 @@ impl BinFormat {
             BinFormat::Macho
         } else {
             BinFormat::Elf
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-/// Enum which specifies the architecture
-pub enum Arch {
-    X86_64,
-    Arm,
-    Riscv32,
-    Riscv64,
-    Wasm32,
-    Wasm64,
-    Unknown,
-}
-
-impl Arch {
-    /// Returns the native architecture
-    pub fn host() -> Arch {
-        if cfg!(target_arch = "x86_64") {
-            Arch::X86_64
-        } else if cfg!(target_arch = "arm") {
-            Arch::Arm
-        } else if cfg!(target_arch = "riscv32") {
-            Arch::Riscv32
-        } else if cfg!(target_arch = "riscv64") {
-            Arch::Riscv64
-        } else if cfg!(target_arch = "wasm32") {
-            Arch::Wasm32
-        } else if cfg!(target_arch = "wasm64") {
-            Arch::Wasm32
-        } else {
-            Arch::Unknown
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-/// Enum which specifies the endiannes
-pub enum Endian {
-    Litte,
-    Big,
-}
-
-impl Endian {
-    /// Returns the native endian
-    pub fn host() -> Endian {
-        if cfg!(target_endian = "big") {
-            Endian::Big
-        } else {
-            Endian::Litte
         }
     }
 }
@@ -137,8 +86,8 @@ impl ObjectBuilder {
     pub fn write(
         &mut self,
         format: BinFormat,
-        arch: Arch,
-        endian: Endian,
+        arch: Architecture,
+        endian: object::Endianness,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let file = OpenOptions::new()
             .create(true)
@@ -149,24 +98,10 @@ impl ObjectBuilder {
             BinFormat::Elf => object::BinaryFormat::Elf,
             BinFormat::Coff => object::BinaryFormat::Coff,
             BinFormat::Macho => object::BinaryFormat::MachO,
+            //BinFormat::Exe => object::BinaryFormat::Pe,
         };
 
-        let obj_arch = match arch {
-            Arch::X86_64 => object::Architecture::X86_64,
-            Arch::Arm => object::Architecture::Arm,
-            Arch::Riscv32 => object::Architecture::Riscv32,
-            Arch::Riscv64 => object::Architecture::Riscv64,
-            Arch::Wasm32 => object::Architecture::Wasm32,
-            Arch::Wasm64 => object::Architecture::Wasm64,
-            Arch::Unknown => object::Architecture::Unknown,
-        };
-
-        let obj_endian = match endian {
-            Endian::Litte => object::Endianness::Little,
-            Endian::Big => object::Endianness::Big,
-        };
-
-        let mut obj = object::write::Object::new(obj_format, obj_arch, obj_endian);
+        let mut obj = object::write::Object::new(obj_format, arch, endian);
 
         obj.add_file_symbol(self.outpath.to_owned().into_bytes());
 
@@ -179,7 +114,7 @@ impl ObjectBuilder {
 
             // get type
             match decl {
-                Decl::Data(s) => match s {
+                Decl::RData(s) => match s {
                     Scope::Import => {
                         ids.insert(
                             name.to_string(),
@@ -212,7 +147,61 @@ impl ObjectBuilder {
                         }
 
                         let (section, offset) = obj.add_subsection(
-                            StandardSection::Data,
+                            StandardSection::ReadOnlyData,
+                            name.as_bytes().into(),
+                            data,
+                            16,
+                        );
+                        let symbol = obj.add_symbol(Symbol {
+                            name: name.as_bytes().into(),
+                            value: offset,
+                            size: data.len() as u64,
+                            kind: SymbolKind::Data,
+                            scope: scope,
+                            weak: false,
+                            section: SymbolSection::Section(section),
+                            flags: SymbolFlags::None,
+                        });
+
+                        funcs.insert(name.into(), ((section, offset), symbol));
+                    }
+                },
+
+                
+                Decl::UData(s) => match s {
+                    Scope::Import => {
+                        ids.insert(
+                            name.to_string(),
+                            obj.add_symbol(Symbol {
+                                name: name.as_bytes().into(),
+                                value: 0,
+                                size: 0,
+                                kind: SymbolKind::Data,
+                                scope: SymbolScope::Dynamic,
+                                weak: false,
+                                section: SymbolSection::Undefined,
+                                flags: SymbolFlags::None,
+                            }),
+                        );
+                    }
+                    _ => {
+                        let dat_opt = self.sym.get(&name.clone());
+
+                        if dat_opt.is_none() {
+                            return Err(Box::from(ObjectError::DeclWithoutSymbol));
+                        }
+
+                        let data = dat_opt.unwrap();
+
+                        let scope;
+                        if s.to_owned() == Scope::Export {
+                            scope = SymbolScope::Linkage
+                        } else {
+                            scope = SymbolScope::Compilation
+                        }
+
+                        let (section, offset) = obj.add_subsection(
+                            StandardSection::UninitializedData,
                             name.as_bytes().into(),
                             data,
                             16,
