@@ -27,13 +27,25 @@ impl VarGen {
         }
     }
 
-    /// Creates a new VarGen where the var is stored in an register
+    /// Creates a new VarGen where the var is stored in a register
     pub fn new_reg(typ: Type, reg: Register) -> Self {
         Self {
             on_stack: typ.stack(),
             in_reg: true,
             stack_adr: 0,
             reg: reg,
+
+            typ: typ,
+        }
+    }
+
+    /// Creates a new VarGen where the var is stored in the stack
+    pub fn new_stack(typ: Type, adr: usize) -> Self {
+        Self {
+            on_stack: true,
+            in_reg: false,
+            stack_adr: adr,
+            reg: Register::None,
 
             typ: typ,
         }

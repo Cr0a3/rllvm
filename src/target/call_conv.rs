@@ -71,9 +71,9 @@ impl TargetCallConv {
 
     pub fn windows() -> Self {
         Self {
-            arg16:  vec![cx,    dx,     r8w,    r9w                 ],
-            arg32:  vec![ecx,   edx,    r8d,    r9d                 ],
-            arg64:  vec![rcx,   rdx,    r8,     r9                  ],
+            arg16:  vec![cx,    dx,     r8w,    r9w],
+            arg32:  vec![ecx,   edx,    r8d,    r9d],
+            arg64:  vec![rcx,   rdx,    r8,     r9],
 
             argf: vec![xmm0,    xmm1,   xmm2,   xmm3, ],
 

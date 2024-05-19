@@ -1,5 +1,5 @@
 use std::error::Error;
-use rllvm::{contxt::{contxt::Context, jit::JitFunction}, ir::{ir::Return, r#type::Type, var::VarGen}};
+use rllvm::{contxt::{contxt::Context, jit::JitFunction}, ir::{ir::Return, r#type::Type}};
 use target_lexicon::Triple;
 
 fn main() -> Result<(), Box<dyn Error>>{
@@ -7,8 +7,8 @@ fn main() -> Result<(), Box<dyn Error>>{
     let func = contxt.add_function("add", vec![Type::u32, Type::u32], Type::u32);
     let asm = func.asm_func()?;
 
-    let x = VarGen::new_reg(Type::u32, asm.call.arg64_reg(0).unwrap());
-    let y = VarGen::new_reg(Type::u32, asm.call.arg64_reg(1).unwrap());
+    let x = asm.arg(0).unwrap();
+    let y = asm.arg(1).unwrap();
 
     func.ir.push( Return::new(*(x + y) ) );
 

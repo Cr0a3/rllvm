@@ -36,6 +36,9 @@ impl Function {
 
     /// Returns the function as a compilable version
     pub fn asm_func(&mut self) -> Result<&mut AsmFunction, Box<dyn Error>> {
+        self.asm.args = self.args.clone();
+        self.asm.ret = self.ret;        
+
         for ir in &self.ir {
             ir.compile(&mut self.asm)?;
         }

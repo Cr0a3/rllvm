@@ -1,7 +1,7 @@
 use std::{collections::{HashMap, VecDeque}, error::Error};
 
 use iced_x86::code_asm::*;
-use crate::{contxt::{contxt::Context, link::Link}, target::call_conv::TargetCallConv};
+use crate::{contxt::{contxt::Context, link::Link}, ir::{r#type::Type, var::VarGen}, target::call_conv::TargetCallConv};
 
 /// Stores ir for function which can be compiled
 pub struct AsmFunction {
@@ -16,6 +16,9 @@ pub struct AsmFunction {
     req_names: usize,
 
     stack_safe: bool,
+
+    pub args: Vec<Type>,
+    pub ret: Type,
 }
 
 impl AsmFunction {
@@ -30,6 +33,8 @@ impl AsmFunction {
             call: contxt.call.clone(),
             req_names: 0,
             stack_safe: false,
+            args: vec![],
+            ret: Type::u32,
         }
     }
 
@@ -132,5 +137,55 @@ impl AsmFunction {
         self.req_names += 1;
 
         req
+    }
+
+    /// Returns the argument as a variable (or None if the index isn't found)
+    /// 
+    /// **IMPORTANT:** maybe argument registers get overwritten so it points to an invalid value
+    pub fn arg(&self, nr: usize) -> Option<VarGen> {
+        let get = self.args.get(nr);
+
+        if get.is_none() {
+            return None;
+        }
+
+        let mut index = 0;
+        let mut reg_args = 0;
+        let mut adr = 0;
+
+        for arg in &self.args {
+
+            if index == nr { break; }
+
+            if arg.reg() {
+                reg_args += 1;
+            }
+
+            if arg.stack() {
+                adr += arg.size();
+            }
+
+            index += 1;
+        }
+
+        let typ = get.unwrap();
+
+        if typ.reg() {
+            let reg = {
+                match typ {
+                    Type::u64 | Type::i64 => self.call.arg64_reg(reg_args),
+                    Type::u32 | Type::i32 => self.call.arg32_reg(reg_args),
+                    Type::u16 | Type::i16 => self.call.arg16_reg(reg_args),
+                    Type::u8  | Type::i8  => self.call.arg16_reg(reg_args),
+                    Type::f64 | Type::f32 => self.call.argf_reg(reg_args),
+                }
+            };
+
+            Some(VarGen::new_reg(*typ, reg?))
+        } else if typ.stack() {
+            Some(VarGen::new_stack(*typ, adr))
+        } else {
+            None // invalid type or dummy type
+        }
     }
 }
