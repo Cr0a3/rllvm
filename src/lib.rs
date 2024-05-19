@@ -100,3 +100,37 @@ pub mod target;
 pub mod naming;
 
 pub use target_lexicon;
+
+/// Most important structs etc. rexported in one mod
+pub mod prelude {
+    #[cfg(feature = "context")]
+    pub use crate::contxt::contxt::Context;
+    #[cfg(feature = "context")]
+    pub use crate::target::call_conv::TargetCallConv;
+
+    #[cfg(feature = "function")]
+    pub use crate::func::{Function, AsmFunction};
+
+    pub use crate::naming::NamingGenerator;
+
+
+    #[cfg(feature = "jit")]
+    pub use crate::contxt::{
+        jit::JitFunction,
+        link::{
+            JitLinker,
+            Link
+        }
+    };
+
+    #[cfg(feature = "ir")]
+    pub use crate::ir::compile::Compile;
+    #[cfg(feature = "ir")]
+    pub use crate::ir::r#type::Type;
+    #[cfg(feature = "ir")]
+    pub use crate::ir::var::VarGen;
+    #[cfg(feature = "ir")]
+    pub use crate::ir::ir::*;
+
+    pub use target_lexicon::*;
+}

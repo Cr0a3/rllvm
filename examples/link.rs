@@ -1,4 +1,4 @@
-use rllvm::contxt::{jit::JitFunction, link::{JitLinker, Link}};
+use rllvm::prelude::*;
 
 #[rustfmt::skip]
 fn main() {

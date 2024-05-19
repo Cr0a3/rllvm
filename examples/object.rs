@@ -1,6 +1,5 @@
 use std::error::Error;
-use rllvm::{contxt::contxt::Context, ir::r#type::Type};
-use target_lexicon::Triple;
+use rllvm::prelude::*;
 
 fn main() -> Result<(), Box<dyn Error>>{
     let mut contxt = Context::new( Triple::host() )?;
