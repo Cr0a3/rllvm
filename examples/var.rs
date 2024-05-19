@@ -18,8 +18,6 @@ fn main() -> Result<(), Box<dyn Error>>{
         let out = func.call(5, 5);
 
         println!("main() -> {}", out);
-
-        //assert_eq!(out, 10);
     }
 
     Ok(())
