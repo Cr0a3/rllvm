@@ -4,23 +4,14 @@ on:
    branches:
    - main
 
-env:
-  CARGO_INCREMENTAL: 0
-  CARGO_NET_RETRY: 10
-  RUSTFLAGS: "-D warnings -W unreachable-pub"
-  RUSTUP_MAX_RETRIES: 10
-
 jobs:
   rustdoc:
-    if: github.repository == 'rust-lang/rust-analyzer'
+
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    - name: Install Rust toolchain
-      run: rustup update --no-self-update stable
 
     - name: Build Documentation
       run: cargo doc --all --no-deps
